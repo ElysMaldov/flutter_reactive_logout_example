@@ -8,6 +8,7 @@ import 'package:rxdart/rxdart.dart';
 class SecureStorageService {
   final _log = Logger('SecureStorageService');
   final _storage = const FlutterSecureStorage(aOptions: AndroidOptions());
+  bool _isInitialized = false;
 
   // Keys
   static const _accessTokenKey = 'ACCESS_TOKEN';
@@ -16,7 +17,10 @@ class SecureStorageService {
   SecureStorageService();
 
   Future<void> init() async {
+    if (_isInitialized) return;
+
     await refreshAuthToken();
+    _isInitialized = true;
   }
 
   // Auth Token
