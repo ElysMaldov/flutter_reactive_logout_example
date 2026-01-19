@@ -1,0 +1,13 @@
+{
+    "dart.flutterSdkPath": "C:\\Users\\emuia\\programming\\kalachakra\\sentinel\\sentinel_app\\.fvm\\versions\\3.38.1",
+    "workbench.colorCustomizations": {
+        "statusBar.background": "#7daea3",
+        "statusBar.debuggingBackground": "#ae7d88",
+        "statusBar.debuggingForeground": "#15202b",
+        "statusBar.foreground": "#15202b",
+        "statusBarItem.hoverBackground": "#5f998c",
+        "statusBarItem.remoteBackground": "#7daea3",
+        "statusBarItem.remoteForeground": "#15202b"
+    },
+    "peacock.color": "#7daea3"
+}
