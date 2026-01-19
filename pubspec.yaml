@@ -1,6 +1,6 @@
 name: flutter_reactive_logout_example
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,6 +9,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
+  get_it: ^9.2.0
+  rxdart: ^0.28.0
+  meta: ^1.18.0
 
 dev_dependencies:
   flutter_test:
