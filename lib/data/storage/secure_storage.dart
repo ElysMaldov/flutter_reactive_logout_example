@@ -5,27 +5,20 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
 import 'package:rxdart/rxdart.dart';
 
-class SecureStorageService {
-  final _log = Logger('SecureStorageService');
-  final _storage = const FlutterSecureStorage(aOptions: AndroidOptions());
-  bool _isInitialized = false;
+class SecureStorage {
+  final _log = Logger('SecureStorage');
+  final _storage = const FlutterSecureStorage();
 
   // Keys
   static const _accessTokenKey = 'ACCESS_TOKEN';
   static const _refreshTokenKey = 'REFRESH_TOKEN';
 
-  SecureStorageService();
-
-  Future<void> init() async {
-    if (_isInitialized) return;
-
-    await refreshAuthToken();
-    _isInitialized = true;
-  }
+  SecureStorage();
 
   // Auth Token
   final _authTokenSubject = BehaviorSubject<AuthToken?>();
   Stream<AuthToken?> get authTokenStream => _authTokenSubject.stream;
+  AuthToken? get authToken => _authTokenSubject.value;
 
   Future<void> refreshAuthToken() async {
     try {
