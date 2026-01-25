@@ -24,8 +24,8 @@ class SecureStorageService {
   }
 
   // Auth Token
-  final _authTokenStreamController = BehaviorSubject<AuthToken?>();
-  Stream<AuthToken?> get authTokenStream => _authTokenStreamController.stream;
+  final _authTokenSubject = BehaviorSubject<AuthToken?>();
+  Stream<AuthToken?> get authTokenStream => _authTokenSubject.stream;
 
   Future<void> refreshAuthToken() async {
     try {
@@ -44,7 +44,7 @@ class SecureStorageService {
       }
 
       _log.info('Refreshing auth token finished');
-      _authTokenStreamController.add(newAuthToken);
+      _authTokenSubject.add(newAuthToken);
     } catch (e, stack) {
       _log.severe('Refreshing auth token failed', e, stack);
       rethrow;
@@ -62,7 +62,7 @@ class SecureStorageService {
 
       _log.info('Saving auth token finished');
 
-      _authTokenStreamController.add(authToken);
+      _authTokenSubject.add(authToken);
     } catch (e, stack) {
       _log.severe('Saving auth token finished failed', e, stack);
       rethrow;
@@ -80,7 +80,7 @@ class SecureStorageService {
 
       _log.info('Clearing auth token finished');
 
-      _authTokenStreamController.add(null);
+      _authTokenSubject.add(null);
     } catch (e, stack) {
       _log.severe('Clearing auth token failed', e, stack);
       rethrow;
@@ -88,6 +88,6 @@ class SecureStorageService {
   }
 
   void dispose() {
-    _authTokenStreamController.close();
+    _authTokenSubject.close();
   }
 }
