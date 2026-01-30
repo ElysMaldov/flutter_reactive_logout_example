@@ -53,6 +53,10 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           ),
         );
 
+        // XXX We don't group the refresh token request into AuthService since
+        // this request requires a different Dio instance than what is injected
+        // in the AuthService. It's easier this way too, but a cleaner way is to
+        // abstract this away into its own service.
         final refreshResponse = await tokenDio.post(
           ApiRoutes.refreshToken,
           data: FormData.fromMap({'refresh_token': authToken.refreshToken}),
