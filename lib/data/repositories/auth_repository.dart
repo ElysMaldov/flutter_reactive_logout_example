@@ -2,28 +2,68 @@ import 'package:dio/dio.dart';
 import 'package:flutter_reactive_logout_example/data/core/app_error.dart';
 import 'package:flutter_reactive_logout_example/data/services/auth_service.dart';
 import 'package:flutter_reactive_logout_example/data/storage/secure_storage.dart';
+import 'package:flutter_reactive_logout_example/domain/enums/auth_status.dart';
 import 'package:flutter_reactive_logout_example/domain/models/auth_token.dart';
 import 'package:flutter_reactive_logout_example/domain/models/login_request.dart';
 import 'package:flutter_reactive_logout_example/domain/models/register_request.dart';
 import 'package:flutter_reactive_logout_example/domain/models/user.dart';
 import 'package:logging/logging.dart';
+import 'package:rxdart/rxdart.dart';
 
 abstract class AuthRepository {
+  Stream<AuthStatus> get authStatusStream;
+  AuthStatus get currentAuthStatus;
+
   Future<void> register(RegisterRequest registerRequest);
   Future<void> login(LoginRequest loginRequest);
   Future<User> getUserProfile();
+
+  Future<void> logout();
 }
 
-class AuthRepositoryRemote implements AuthRepository {
+class AuthRepositoryRemote extends AuthRepository {
   final Logger _log = Logger('AuthRepositoryRemote');
   final AuthService _authService;
   final SecureStorage _secureStorage;
+
+  final BehaviorSubject<AuthStatus> _authStatusSubject =
+      BehaviorSubject<AuthStatus>.seeded(AuthStatus.unknown);
+  @override
+  Stream<AuthStatus> get authStatusStream => _authStatusSubject.stream;
+  @override
+  AuthStatus get currentAuthStatus => _authStatusSubject.value;
 
   AuthRepositoryRemote({
     required AuthService authService,
     required SecureStorage secureStorage,
   }) : _authService = authService,
-       _secureStorage = secureStorage;
+       _secureStorage = secureStorage {
+    _initializeAuthStatus();
+  }
+
+  Future<void> _initializeAuthStatus() async {
+    try {
+      _log.info('Initializing auth status');
+      await _secureStorage.refreshAuthToken();
+      final hasToken = _secureStorage.authToken != null;
+      if (hasToken) {
+        _authStatusSubject.add(AuthStatus.authenticated);
+        _log.info(
+          'Auth status initialized: authenticated (existing token found)',
+        );
+      } else {
+        _authStatusSubject.add(AuthStatus.unauthenticated);
+        _log.info('Auth status initialized: unauthenticated (no token found)');
+      }
+    } on Exception catch (e, stack) {
+      _log.severe(
+        'Token refresh failed during auth status initialization',
+        e,
+        stack,
+      );
+      _authStatusSubject.add(AuthStatus.unauthenticated);
+    }
+  }
 
   @override
   Future<void> register(RegisterRequest registerRequest) async {
@@ -52,6 +92,7 @@ class AuthRepositoryRemote implements AuthRepository {
         );
       }
 
+      _authStatusSubject.add(AuthStatus.authenticated);
       _log.info('Login successful for: ${loginRequest.email}');
     } catch (e, stack) {
       _log.severe('Login failed', e, stack);
@@ -68,6 +109,20 @@ class AuthRepositoryRemote implements AuthRepository {
       return response.toDomain();
     } catch (e, stack) {
       _log.severe('Failed to fetch user profile', e, stack);
+      throw _mapToAppError(e);
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      _log.info('Logging out user');
+      await _secureStorage.clearAuthToken();
+      _authStatusSubject.add(AuthStatus.unauthenticated);
+      _log.info('Logout successful');
+    } catch (e, stack) {
+      _log.severe('Logout failed', e, stack);
+      _authStatusSubject.add(AuthStatus.unauthenticated);
       throw _mapToAppError(e);
     }
   }

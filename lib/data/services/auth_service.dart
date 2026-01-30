@@ -12,7 +12,7 @@ abstract class AuthService {
   Future<UserProfileDto> getUserProfile();
 }
 
-class AuthServiceRemote implements AuthService {
+class AuthServiceRemote extends AuthService {
   final Dio _dio;
 
   AuthServiceRemote({required Dio dio}) : _dio = dio;
