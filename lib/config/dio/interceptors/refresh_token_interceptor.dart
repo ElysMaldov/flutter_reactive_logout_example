@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_reactive_logout_example/config/api_routes.dart';
+import 'package:flutter_reactive_logout_example/data/core/app_signals.dart';
 import 'package:flutter_reactive_logout_example/data/storage/secure_storage.dart';
 import 'package:flutter_reactive_logout_example/domain/models/auth_token.dart';
 import 'package:logging/logging.dart';
@@ -9,11 +10,16 @@ import 'package:logging/logging.dart';
 class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
   final Dio _dio;
   final SecureStorage _storage;
+  final AppSignals _appSignals;
   final _log = Logger('RefreshTokenInterceptor');
 
-  RefreshTokenInterceptor({required Dio dio, required SecureStorage storage})
-    : _dio = dio,
-      _storage = storage;
+  RefreshTokenInterceptor({
+    required Dio dio,
+    required SecureStorage storage,
+    required AppSignals appSignals,
+  }) : _dio = dio,
+       _storage = storage,
+       _appSignals = appSignals;
 
   @override
   Future<void> onError(
@@ -75,7 +81,8 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
       } catch (e) {
         _log.severe('Refresh token failed. Logging user out', e);
 
-        // TODO: signal app to logout here
+        // Important piece to signal logout for our app
+        _appSignals.emitLogoutSignal();
 
         return handler.next(err);
       }
