@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter_reactive_logout_example/domain/models/user.dart';
 
 part 'user_profile_dto.g.dart';
 
@@ -24,6 +25,10 @@ class UserProfileDto {
       _$UserProfileDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserProfileDtoToJson(this);
+
+  User toDomain() {
+    return User(id: id, email: email, name: name, role: role, avatar: avatar);
+  }
 
   static const jsonSchema = _$UserProfileDtoJsonSchema;
 }
