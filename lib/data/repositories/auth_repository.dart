@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_reactive_logout_example/data/core/app_error.dart';
+import 'package:flutter_reactive_logout_example/data/core/app_signals.dart';
 import 'package:flutter_reactive_logout_example/data/services/auth_service.dart';
 import 'package:flutter_reactive_logout_example/data/storage/secure_storage.dart';
 import 'package:flutter_reactive_logout_example/domain/enums/auth_status.dart';
@@ -25,6 +26,7 @@ class AuthRepositoryRemote extends AuthRepository {
   final Logger _log = Logger('AuthRepositoryRemote');
   final AuthService _authService;
   final SecureStorage _secureStorage;
+  final AppSignals _appSignals;
 
   final BehaviorSubject<AuthStatus> _authStatusSubject =
       BehaviorSubject<AuthStatus>.seeded(AuthStatus.unknown);
@@ -36,9 +38,19 @@ class AuthRepositoryRemote extends AuthRepository {
   AuthRepositoryRemote({
     required AuthService authService,
     required SecureStorage secureStorage,
+    required AppSignals appSignals,
   }) : _authService = authService,
-       _secureStorage = secureStorage {
+       _secureStorage = secureStorage,
+       _appSignals = appSignals {
     _initializeAuthStatus();
+    _listenToLogoutSignal();
+  }
+
+  void _listenToLogoutSignal() {
+    _appSignals.logoutSignalStream.listen((_) async {
+      _log.info('Logout signal received, performing logout');
+      await logout();
+    });
   }
 
   Future<void> _initializeAuthStatus() async {

@@ -38,6 +38,7 @@ abstract class DependencyManager {
       () => AuthRepositoryRemote(
         authService: _injector<AuthService>(),
         secureStorage: _injector<SecureStorage>(),
+        appSignals: _injector<AppSignals>(),
       ),
     );
   }
