@@ -23,6 +23,26 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
        _appSignals = appSignals;
 
   @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    if (options.extra['throw401Error'] == true) {
+      _log.info('Demo: Throwing 401 error as requested');
+
+      final error = DioException(
+        requestOptions: options,
+        response: Response(requestOptions: options, statusCode: 401),
+        type: DioExceptionType.badResponse,
+      );
+
+      return handler.reject(error, true);
+    }
+
+    super.onRequest(options, handler);
+  }
+
+  @override
   Future<void> onError(
     DioException err,
     ErrorInterceptorHandler handler,
@@ -37,6 +57,12 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
       _log.warning('Token expired! Refreshing token...');
 
       try {
+        // If throw401Error is true, throw AppError to trigger the catch block
+        if (err.requestOptions.extra['throw401Error'] == true) {
+          _log.info('Demo: Throwing AppError as requested');
+          throw AppError(message: 'Demo 401 error', statusCode: 401);
+        }
+
         // Refresh token
         final requestOptions = err.requestOptions;
         final authToken = _storage.authToken;
@@ -70,11 +96,6 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           AuthToken(accessToken: newAccessToken, refreshToken: newRefreshToken),
         );
 
-        // TODO remove this if used in prod. Form demo: 50% chance to throw error to test logout behavior
-        if (_shouldThrowDemoError()) {
-          throw Exception('Demo: Simulating refresh token error (50% chance)');
-        }
-
         try {
           // Retry request
           _log.info('Token refreshed! Retrying request.');
@@ -105,9 +126,5 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     }
 
     return handler.next(err);
-  }
-
-  bool _shouldThrowDemoError() {
-    return DateTime.now().millisecondsSinceEpoch % 2 == 0;
   }
 }

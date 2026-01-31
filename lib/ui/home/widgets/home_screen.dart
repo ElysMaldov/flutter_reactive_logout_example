@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_reactive_logout_example/domain/models/user.dart';
-import 'package:flutter_reactive_logout_example/ui/home/cubit/home_cubit.dart';
 import 'package:flutter_reactive_logout_example/routing/routes.dart';
+import 'package:flutter_reactive_logout_example/ui/home/cubit/home_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,6 +22,12 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<HomeCubit>().getUserProfile();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,11 +52,14 @@ class _HomeViewState extends State<HomeView> {
           ),
           BlocListener<HomeCubit, HomeState>(
             listenWhen: (previous, current) =>
-                previous.status != current.status && current.status == HomeStatus.error,
+                previous.status != current.status &&
+                current.status == HomeStatus.error,
             listener: (context, state) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(state.appError?.message ?? 'Failed to load profile'),
+                  content: Text(
+                    state.appError?.message ?? 'Failed to load profile',
+                  ),
                   backgroundColor: Colors.red,
                   action: SnackBarAction(
                     label: 'Retry',
@@ -93,7 +102,21 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       const SizedBox(height: 16),
                       _buildUserInfoCard(state.user!),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
+                      // TODO: Remove this button in prod. For demo purposes only to test logout behavior
+                      ElevatedButton(
+                        onPressed: () =>
+                            context.read<HomeCubit>().trigger401Error(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text(
+                          'Trigger 401 Error (Demo)',
+                          style: TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () => _handleLogout(context),
                         style: ElevatedButton.styleFrom(
@@ -110,11 +133,6 @@ class _HomeViewState extends State<HomeView> {
                 ),
               );
             }
-
-            // Initial state - trigger profile load
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.read<HomeCubit>().getUserProfile();
-            });
 
             return const Center(child: CircularProgressIndicator());
           },

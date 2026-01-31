@@ -106,8 +106,7 @@ class AppRouter extends ChangeNotifier {
       name: 'home',
       builder: (context, state) => BlocProvider(
         create: (context) =>
-            HomeCubit(authRepository: DependencyManager.get<AuthRepository>())
-              ..getUserProfile(),
+            HomeCubit(authRepository: DependencyManager.get<AuthRepository>()),
         child: const HomeScreen(),
       ),
     ),
