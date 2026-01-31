@@ -69,6 +69,11 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           AuthToken(accessToken: newAccessToken, refreshToken: newRefreshToken),
         );
 
+        // TODO remove this if used in prod. Form demo: 50% chance to throw error to test logout behavior
+        if (_shouldThrowDemoError()) {
+          throw Exception('Demo: Simulating refresh token error (50% chance)');
+        }
+
         try {
           // Retry request
           _log.info('Token refreshed! Retrying request.');
@@ -93,5 +98,9 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
     }
 
     return handler.next(err);
+  }
+
+  bool _shouldThrowDemoError() {
+    return DateTime.now().millisecondsSinceEpoch % 2 == 0;
   }
 }
