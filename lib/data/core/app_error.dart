@@ -5,11 +5,7 @@ class AppError implements Exception {
   final int? statusCode;
   final String? message;
 
-  const AppError({
-    this.title,
-    this.statusCode,
-    this.message,
-  });
+  const AppError({this.title, this.statusCode, this.message});
 
   @override
   String toString() {
@@ -45,7 +41,8 @@ class AppError implements Exception {
 
       // Provide default messages based on exception type
       if (error.type == DioExceptionType.connectionError) {
-        message ??= 'Unable to connect to the server. Please check your internet connection.';
+        message ??=
+            'Unable to connect to the server. Please check your internet connection.';
       } else if (error.type == DioExceptionType.receiveTimeout) {
         message ??= 'Server is not responding. Please try again later.';
       } else if (error.type == DioExceptionType.sendTimeout) {
@@ -57,9 +54,7 @@ class AppError implements Exception {
       }
 
       // Provide default titles based on status code
-      if (title == null) {
-        title = _getDefaultTitle(statusCode);
-      }
+      title ??= _getDefaultTitle(statusCode);
     } else if (error is Exception) {
       message = error.toString();
     }
