@@ -40,6 +40,7 @@ abstract class DependencyManager {
         secureStorage: _injector<SecureStorage>(),
         appSignals: _injector<AppSignals>(),
       ),
+      dispose: (instance) => instance.dispose(),
     );
   }
 }

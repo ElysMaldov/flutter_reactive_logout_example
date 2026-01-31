@@ -20,6 +20,7 @@ abstract class AuthRepository {
   Future<User> getUserProfile();
 
   Future<void> logout();
+  void dispose();
 }
 
 class AuthRepositoryRemote extends AuthRepository {
@@ -155,5 +156,9 @@ class AuthRepositoryRemote extends AuthRepository {
     }
 
     return AppError(title: null, statusCode: statusCode, message: message);
+  }
+
+  void dispose() {
+    _authStatusSubject.close();
   }
 }
