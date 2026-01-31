@@ -31,5 +31,5 @@ const _$RegisterRequestJsonSchema = {
     'password': {'type': 'string'},
     'avatar': {'type': 'string'},
   },
-  'required': ['name', 'email', 'password'],
+  'required': ['name', 'email', 'password', 'avatar'],
 };

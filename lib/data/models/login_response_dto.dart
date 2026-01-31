@@ -4,8 +4,10 @@ part 'login_response_dto.g.dart';
 
 @JsonSerializable(createJsonSchema: true)
 class LoginResponseDto {
-  final String? accessToken;
-  final String? refreshToken;
+  @JsonKey(name: 'access_token')
+  final String accessToken;
+  @JsonKey(name: 'refresh_token')
+  final String refreshToken;
 
   const LoginResponseDto({
     required this.accessToken,

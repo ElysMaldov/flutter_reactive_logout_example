@@ -96,14 +96,12 @@ class AuthRepositoryRemote extends AuthRepository {
       _log.info('Logging in user: ${loginRequest.email}');
       final response = await _authService.login(loginRequest);
 
-      if (response.accessToken != null && response.refreshToken != null) {
-        await _secureStorage.saveAuthToken(
-          AuthToken(
-            accessToken: response.accessToken!,
-            refreshToken: response.refreshToken!,
-          ),
-        );
-      }
+      await _secureStorage.saveAuthToken(
+        AuthToken(
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+        ),
+      );
 
       _authStatusSubject.add(AuthStatus.authenticated);
       _log.info('Login successful for: ${loginRequest.email}');
