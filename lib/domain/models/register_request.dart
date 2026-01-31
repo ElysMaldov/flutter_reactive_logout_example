@@ -8,13 +8,13 @@ class RegisterRequest {
     required this.name,
     required this.email,
     required this.password,
-    this.avatar,
+    required this.avatar,
   });
 
   final String name;
   final String email;
   final String password;
-  final String? avatar;
+  final String avatar;
 
   factory RegisterRequest.fromJson(Map<String, dynamic> json) =>
       _$RegisterRequestFromJson(json);

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_reactive_logout_example/config/api_routes.dart';
+import 'package:flutter_reactive_logout_example/data/core/app_error.dart';
 import 'package:flutter_reactive_logout_example/data/core/app_signals.dart';
 import 'package:flutter_reactive_logout_example/data/storage/secure_storage.dart';
 import 'package:flutter_reactive_logout_example/domain/models/auth_token.dart';
@@ -85,15 +86,21 @@ class RefreshTokenInterceptor extends QueuedInterceptorsWrapper {
           return handler.resolve(retryResponse);
         } catch (e) {
           _log.warning('Failed to retry request', e);
-          return handler.next(err);
+          final appError = AppError.from(e);
+          return handler.next(
+            DioException(requestOptions: err.requestOptions, error: appError),
+          );
         }
       } catch (e) {
         _log.severe('Refresh token failed. Logging user out', e);
+        final appError = AppError.from(e);
 
         // Important piece to signal logout for our app
         _appSignals.emitLogoutSignal();
 
-        return handler.next(err);
+        return handler.next(
+          DioException(requestOptions: err.requestOptions, error: appError),
+        );
       }
     }
 

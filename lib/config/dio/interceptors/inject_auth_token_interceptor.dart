@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_reactive_logout_example/data/core/app_error.dart';
 import 'package:flutter_reactive_logout_example/data/storage/secure_storage.dart';
 import 'package:logging/logging.dart';
 
@@ -31,8 +32,9 @@ class InjectAuthTokenInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    final appError = AppError.from(err);
     _log.severe(
-      'ERROR[${err.response?.statusCode}] => ${err.requestOptions.method} ${err.requestOptions.path}',
+      'ERROR[${appError.statusCode}] => ${err.requestOptions.method} ${err.requestOptions.path}: ${appError.message}',
       err,
     );
     super.onError(err, handler);

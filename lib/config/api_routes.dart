@@ -1,5 +1,5 @@
 abstract final class ApiRoutes {
-  static const baseUrl = 'api.escuelajs.co/api/v1';
+  static const baseUrl = 'https://api.escuelajs.co/api/v1';
 
   static const login = "$baseUrl/auth/login";
   static const userProfile = "$baseUrl/auth/profile";

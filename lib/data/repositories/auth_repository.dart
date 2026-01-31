@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_reactive_logout_example/data/core/app_error.dart';
 import 'package:flutter_reactive_logout_example/data/core/app_signals.dart';
 import 'package:flutter_reactive_logout_example/data/services/auth_service.dart';
@@ -85,8 +84,9 @@ class AuthRepositoryRemote extends AuthRepository {
       await _authService.register(registerRequest);
       _log.info('Registration successful for: ${registerRequest.email}');
     } catch (e, stack) {
-      _log.severe('Registration failed', e, stack);
-      throw _mapToAppError(e);
+      final appError = _mapToAppError(e);
+      _log.severe('Registration failed', appError, stack);
+      throw appError;
     }
   }
 
@@ -108,8 +108,9 @@ class AuthRepositoryRemote extends AuthRepository {
       _authStatusSubject.add(AuthStatus.authenticated);
       _log.info('Login successful for: ${loginRequest.email}');
     } catch (e, stack) {
-      _log.severe('Login failed', e, stack);
-      throw _mapToAppError(e);
+      final appError = _mapToAppError(e);
+      _log.severe('Login failed', appError, stack);
+      throw appError;
     }
   }
 
@@ -121,8 +122,9 @@ class AuthRepositoryRemote extends AuthRepository {
       _log.info('User profile fetched successfully');
       return response.toDomain();
     } catch (e, stack) {
-      _log.severe('Failed to fetch user profile', e, stack);
-      throw _mapToAppError(e);
+      final appError = _mapToAppError(e);
+      _log.severe('Failed to fetch user profile', appError, stack);
+      throw appError;
     }
   }
 
@@ -134,30 +136,16 @@ class AuthRepositoryRemote extends AuthRepository {
       _authStatusSubject.add(AuthStatus.unauthenticated);
       _log.info('Logout successful');
     } catch (e, stack) {
-      _log.severe('Logout failed', e, stack);
+      final appError = _mapToAppError(e);
+      _log.severe('Logout failed', appError, stack);
       _authStatusSubject.add(AuthStatus.unauthenticated);
-      throw _mapToAppError(e);
+      throw appError;
     }
   }
 
-  AppError _mapToAppError(dynamic error) {
-    if (error is AppError) {
-      return error;
-    }
+  AppError _mapToAppError(dynamic error) => AppError.from(error);
 
-    int? statusCode;
-    String? message;
-
-    if (error is DioException) {
-      statusCode = error.response?.statusCode;
-      message = error.message;
-    } else if (error is Exception) {
-      message = error.toString();
-    }
-
-    return AppError(title: null, statusCode: statusCode, message: message);
-  }
-
+  @override
   void dispose() {
     _authStatusSubject.close();
   }
