@@ -1,3 +1,4 @@
 # flutter_reactive_logout_example
 
-A new Flutter project.
+This Flutter app demonstrates how to utilize RxDart to reactively logout users
+when refreshing auth token fails.
